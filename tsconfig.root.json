@@ -1,0 +1,5 @@
+{
+  "extends": "@tsconfig/node16/tsconfig.json",
+  "include": ["src", ".storybook"],
+  "exclude": ["dist", "cli", "**/node_modules"]
+}

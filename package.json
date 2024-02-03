@@ -1,0 +1,34 @@
+{
+  "name": "pothos-ts-repro",
+  "version": "1.0.0",
+  "description": "This repo is a try to reproduce of https://github.com/hayes/pothos/issues/1139",
+  "main": "index.js",
+  "scripts": {
+    "build": "pnpm build:concurrently",
+    "build:concurrently": "concurrently 'pnpm:build:cjs' 'pnpm:build:es' 'pnpm:build:types'",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:es": "tsc -p tsconfig.es.json",
+    "build:types": "tsc -p tsconfig.types.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RobertPechaCZ/pothos-ts-repro.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RobertPechaCZ/pothos-ts-repro/issues"
+  },
+  "homepage": "https://github.com/RobertPechaCZ/pothos-ts-repro#readme",
+  "dependencies": {
+    "@pothos/core": "3.41.0",
+    "@pothos/plugin-simple-objects": "^3.6.7",
+    "concurrently": "^8.2.2",
+    "graphql": "16.8.1",
+    "typescript": "5.0.4",
+    "upper-case-first": "2.0.2"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^16.1.1"
+  }
+}

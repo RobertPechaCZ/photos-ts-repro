@@ -1,0 +1,9 @@
+{
+  "include": ["src", "*.d.ts", "../../env.d.ts"],
+  "exclude": ["dist-*", "node_modules"],
+  "extends": "./tsconfig.root.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "strict": true
+  }
+}
