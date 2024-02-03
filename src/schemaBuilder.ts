@@ -1,13 +1,17 @@
 import { InputFieldBuilder, RootFieldBuilder, SchemaTypes } from '@pothos/core';
 import { upperCaseFirst } from 'upper-case-first';
 
+import { usePaginationBuilder } from './usePaginationBuilder';
+
 const rootBuilderProto = RootFieldBuilder.prototype as PothosSchemaTypes.RootFieldBuilder<SchemaTypes, unknown>;
 
-rootBuilderProto.fieldWithInputGroup = function fieldWithInputGroup({ args: { where, data, pagination }, ...fieldOptions }) {
+rootBuilderProto.fieldWithInputGroup = function ({ args: { where, data, pagination }, ...fieldOptions }) {
   const whereInputRef = where ? this.builder.inputRef(upperCaseFirst(`${this.typename}WhereInput`)) : null;
   const dataInputRef = data ? this.builder.inputRef(upperCaseFirst(`${this.typename}DataInput`)) : null;
-  const paginationInputRef = pagination ? this.builder.inputRef(upperCaseFirst(`${this.typename}PaginationInput`)) : null;
-  const typeWithAggregationRef = pagination ? this.builder.objectRef(upperCaseFirst(`${this.typename}WithAggregation`)) : null;
+
+  const { typeWithAggregationRef, paginationArgsGroup } = pagination
+    ? usePaginationBuilder({ builder: this.builder, arg: this.arg, type: fieldOptions.type })
+    : { typeWithAggregationRef: null, paginationArgsGroup: {} };
 
   const whereArgsGroup = whereInputRef
     ? {
@@ -26,8 +30,6 @@ rootBuilderProto.fieldWithInputGroup = function fieldWithInputGroup({ args: { wh
         }),
       }
     : {};
-
-  const paginationArgsGroup = pagination && paginationInputRef ? { filter: this.arg({ required: false, type: paginationInputRef }) } : {};
 
   const fieldRef = this.field({
     ...fieldOptions,
@@ -55,41 +57,19 @@ rootBuilderProto.fieldWithInputGroup = function fieldWithInputGroup({ args: { wh
 
       this.builder.configStore.associateRefWithName(dataInputRef, name);
     }
-
-    if (pagination && typeWithAggregationRef && paginationInputRef) {
-      const namePaginationInput = upperCaseFirst(`${config.name}PaginationInput`);
-
-      this.builder.inputType(namePaginationInput, {
-        fields: (t) => ({
-          take: t.int(),
-          page: t.int({ required: false }),
-        }),
-      });
-
-      this.builder.configStore.associateRefWithName(paginationInputRef, namePaginationInput);
-
-      const nameWithAggregation = upperCaseFirst(`${config.name}WithAggregation`);
-
-      this.builder.simpleObject(nameWithAggregation, {
-        fields: (t) => ({
-          currentPage: t.field({ type: 'Int' }),
-          isFirstPage: t.field({ type: 'Boolean' }),
-          isLastPage: t.field({ type: 'Boolean' }),
-          previousPage: t.field({ type: 'Int', nullable: true }),
-          nextPage: t.field({ type: 'Int', nullable: true }),
-          pageCount: t.field({ type: 'Int' }),
-          totalCount: t.field({ type: 'Int' }),
-          data: t.field({
-            type: fieldOptions.type,
-          }),
-        }),
-      });
-
-      this.builder.configStore.associateRefWithName(typeWithAggregationRef, nameWithAggregation);
-    }
   });
 
   return fieldRef;
+};
+
+rootBuilderProto.fieldWithPagination = function (fieldOptions) {
+  const { typeWithAggregationRef, paginationArgsGroup } = usePaginationBuilder({
+    builder: this.builder,
+    arg: this.arg,
+    type: fieldOptions.type,
+  });
+
+  return this.field({ ...fieldOptions, type: typeWithAggregationRef, args: { ...paginationArgsGroup } } as never);
 };
 
 Object.defineProperty(rootBuilderProto, 'input', {

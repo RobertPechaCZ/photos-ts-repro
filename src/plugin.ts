@@ -4,9 +4,8 @@ import "./schemaBuilder";
 import SchemaBuilder, { BasePlugin, SchemaTypes } from "@pothos/core";
 import { GraphQLFieldResolver } from "graphql";
 
-const paginate = <TA, TB, TOutput>(a: TA, b: TB) => ({} as TOutput);
-
 const pluginName = "inputGroup" as const;
+const paginate = <TA, TB, TOutput>(a: TA, b: TB) => ({} as TOutput);
 
 export default pluginName;
 
